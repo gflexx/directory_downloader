@@ -51,10 +51,23 @@ def main(url):
                 
             if folders:
                 for folder in folders:
-                    print(folder)
-    
-    
-        
+                    full_url = ''
+                    
+                    print('Making ' + folder)
+                    
+                    _path = os.path.join(path, folder)
+                    
+                    if not os.path.exists(_path):
+                        os.makedirs(_path)
+                        
+                    full_url = f_url + folder
+                    
+                    soup = open_page(full_url)
+                    
+                    folders, file_links = find_content(soup)
+                    
+                    files = get_files(file_links, _path)
+                    
 # takes url and opens page
 def open_page(url):
     page = urlopen(url)
@@ -79,6 +92,7 @@ def find_content(soup):
     folders = []
     file_links = []
     skipp_link = []
+    
     # usefull links had a class xt128v in this CDN
     links = soup.findAll('a', attrs={'class': 'css-xt128v'})
     for link in links:
@@ -107,15 +121,13 @@ def get_files(file_links, path):
         path_ = ''
         complete_url = url + file
         response = requests.get(complete_url)
-        print('Getting ' + complete_url + ' Ok!\n')
+        print('Getting ' + file + ' Ok!\n')
         
         # write file
         path_ = _path + '/' + file
         file = open(path_, 'wb')
         file.write(response.content)
         file.close()
-    
-    
     
 if __name__ == '__main__':
     main(url)
